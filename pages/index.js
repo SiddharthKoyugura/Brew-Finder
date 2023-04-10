@@ -19,7 +19,6 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <h1 className={styles.title}>Coffee Store</h1>
         <Banner buttonText="Visit Nearby Shops" handleOnClick={handleOnBannerBtnClick} />
       </main>
     </>
