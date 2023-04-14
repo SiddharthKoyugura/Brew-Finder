@@ -1,15 +1,16 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
-import Banner from '@/components/Banner'
+import Head from "next/head";
+import Image from "next/image";
+import { Inter } from "next/font/google";
+import styles from "@/styles/Home.module.css";
+import Banner from "@/components/Banner";
+import Card from "@/components/Card";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const handleOnBannerBtnClick = () => {
     console.log("hi banner btn");
-}
+  };
   return (
     <>
       <Head>
@@ -19,11 +20,34 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <Banner buttonText="Visit Nearby Shops" handleOnClick={handleOnBannerBtnClick} />
+        <Banner
+          buttonText="Visit Nearby Shops"
+          handleOnClick={handleOnBannerBtnClick}
+        />
         <div className={styles.heroImage}>
-          <Image src='/static/hero-image.png' alt='' width={700} height={400} />
+          <Image src="/static/hero-image.png" alt="" width={700} height={400} />
+        </div>
+        <div className={styles.cardLayout}>
+          <Card
+            href="/coffee-store/hello"
+            title="Hello"
+            imgURL="/static/hero-image.png"
+            className={styles.card}
+          />
+          <Card
+            href="/coffee-store/hello"
+            title="Hello"
+            imgURL="/static/hero-image.png"
+            className={styles.card}
+          />
+          <Card
+            href="/coffee-store/hello"
+            title="Hello"
+            imgURL="/static/hero-image.png"
+            className={styles.card}
+          />
         </div>
       </main>
     </>
-  )
+  );
 }
