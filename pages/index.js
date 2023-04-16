@@ -7,7 +7,16 @@ import Card from "@/components/Card";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Home() {
+export async function getStaticProps(){
+  const CoffeeStores = await fetch('../data/coffee-stores.json');
+  return {
+    props: {
+      CoffeeStores,
+    }
+  }
+}
+
+export default function Home({ CoffeeStores }) {
   const handleOnBannerBtnClick = () => {
     console.log("hi banner btn");
   };
@@ -28,24 +37,17 @@ export default function Home() {
           <Image src="/static/hero-image.png" alt="" width={700} height={400} />
         </div>
         <div className={styles.cardLayout}>
-          <Card
-            href="/coffee-store/hello"
-            title="Hello"
-            imgURL="/static/hero-image.png"
-            className={styles.card}
-          />
-          <Card
-            href="/coffee-store/hello"
-            title="Hello"
-            imgURL="/static/hero-image.png"
-            className={styles.card}
-          />
-          <Card
-            href="/coffee-store/hello"
-            title="Hello"
-            imgURL="/static/hero-image.png"
-            className={styles.card}
-          />
+        {
+          CoffeeStores.map((coffee)=>{
+            return <Card 
+              href={`coffee-store/${coffee.id}`}
+              title={coffee.name}
+              imgURL={coffee.imgUrl}
+              className={styles.card}
+              key={coffee.id}
+            />
+          })
+        }
         </div>
       </main>
     </>
