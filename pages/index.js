@@ -4,14 +4,15 @@ import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import Banner from "@/components/Banner";
 import Card from "@/components/Card";
+import CoffeeStoresData from '../data/coffee-stores.json';
 
 const inter = Inter({ subsets: ["latin"] });
 
 export async function getStaticProps(){
-  const CoffeeStores = await fetch('../data/coffee-stores.json');
+  // const CoffeeStores = await fetch('/../data/coffee-stores.json');
   return {
     props: {
-      CoffeeStores,
+      CoffeeStores: CoffeeStoresData,
     }
   }
 }
@@ -36,19 +37,24 @@ export default function Home({ CoffeeStores }) {
         <div className={styles.heroImage}>
           <Image src="/static/hero-image.png" alt="" width={700} height={400} />
         </div>
-        <div className={styles.cardLayout}>
-        {
-          CoffeeStores.map((coffee)=>{
-            return <Card 
-              href={`coffee-store/${coffee.id}`}
-              title={coffee.name}
-              imgURL={coffee.imgUrl}
-              className={styles.card}
-              key={coffee.id}
-            />
-          })
-        }
-        </div>
+        {CoffeeStores.length > 0 && (
+        <>
+          <h2 className={styles.heading2}>Biston Stores</h2>
+          <div className={styles.cardLayout}>
+          {
+            CoffeeStores.map((coffee)=>{
+              return <Card 
+                href={`coffee-store/${coffee.id}`}
+                title={coffee.name}
+                imgURL={coffee.imgUrl}
+                className={styles.card}
+                key={coffee.id}
+              />
+            })
+          }
+          </div>
+        </>
+        )}
       </main>
     </>
   );
