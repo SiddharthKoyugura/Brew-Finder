@@ -5,9 +5,8 @@ import styles from "@/styles/Home.module.css";
 import Banner from "@/components/Banner";
 import Card from "@/components/Card";
 import { fetchCoffeeStores } from "@/lib/coffee-stores";
+import useTrackLocation from "@/hooks/user-track-location";
 
-
-const inter = Inter({ subsets: ["latin"] });
 
 export async function getStaticProps(){
   // const CoffeeStores = await fetch('/../data/coffee-stores.json');
@@ -20,8 +19,11 @@ export async function getStaticProps(){
 }
 
 export default function Home({ CoffeeStores }) {
+  const { handleTrackLocation, latLong, locationErrorMsg, isFindingLocation } = useTrackLocation();
+  console.log({latLong, locationErrorMsg});
+
   const handleOnBannerBtnClick = () => {
-    console.log("hi banner btn");
+    handleTrackLocation();
   };
   return (
     <>
@@ -33,29 +35,32 @@ export default function Home({ CoffeeStores }) {
       </Head>
       <main className={styles.main}>
         <Banner
-          buttonText="Visit Nearby Shops"
+          buttonText={isFindingLocation ? "Locating..." : "Visit Nearby Shops"}
           handleOnClick={handleOnBannerBtnClick}
         />
+        {locationErrorMsg && <p>Something went wrong: {locationErrorMsg}</p>}
         <div className={styles.heroImage}>
           <Image src="/static/hero-image.png" alt="" width={700} height={400} />
         </div>
         {CoffeeStores.length > 0 && (
-        <>
-          <h2 className={styles.heading2}>Biston Stores</h2>
-          <div className={styles.cardLayout}>
-          {
-            CoffeeStores.map((coffee)=>{
-              return <Card 
-                href={`coffee-store/${coffee.id}`}
-                title={coffee.name}
-                imgURL={coffee.imgUrl || "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"}
-                className={styles.card}
-                key={coffee.id}
-              />
-            })
-          }
-          </div>
-        </>
+        <div className={styles.sectionWrapper}>
+          <>
+            <h2 className={styles.heading2}>Biston Stores</h2>
+            <div className={styles.cardLayout}>
+            {
+              CoffeeStores.map((coffee)=>{
+                return <Card 
+                  href={`coffee-store/${coffee.id}`}
+                  title={coffee.name}
+                  imgURL={coffee.imgUrl || "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"}
+                  className={styles.card}
+                  key={coffee.id}
+                />
+              })
+            }
+            </div>
+          </>
+        </div>
         )}
       </main>
     </>
