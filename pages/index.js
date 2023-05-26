@@ -1,12 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import Head from "next/head";
 import Image from "next/image";
-import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import Banner from "@/components/Banner";
 import Card from "@/components/Card";
 import { fetchCoffeeStores } from "@/lib/coffee-stores";
 import useTrackLocation from "@/hooks/user-track-location";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { ACTION_TYPES, StoreContext } from "@/contex/store-context";
 
 
 export async function getStaticProps(){
@@ -20,11 +21,12 @@ export async function getStaticProps(){
 }
 
 export default function Home(props) {
-  const { handleTrackLocation, latLong, locationErrorMsg, isFindingLocation } = useTrackLocation();
-  console.log({latLong, locationErrorMsg});
+  const { handleTrackLocation, locationErrorMsg, isFindingLocation } = useTrackLocation();
 
-  const [ coffeeStores, setCoffeeStores ] = useState([]);
+  // const [ coffeeStores, setCoffeeStores ] = useState([]);
   const [ coffeeStoreError, setCoffeeStoreError ] = useState(null);
+  const { dispatch, state } = useContext(StoreContext);
+  const { coffeeStores, latLong } = state;
 
   useEffect(()=>{
     async function setCoffeeStoresByLocation() {
@@ -32,8 +34,11 @@ export default function Home(props) {
         try{
           const fetchedCoffeeStores = await fetchCoffeeStores(latLong, 30);
           console.log(fetchedCoffeeStores);
-          setCoffeeStores(fetchedCoffeeStores);
-          // Set the Cofee Stores
+          dispatch({
+            type: ACTION_TYPES.SET_COFFEE_STORES,
+            payload: { coffeeStores:fetchedCoffeeStores }
+          });
+          // setCoffeeStores(fetchedCoffeeStores);
         }
         catch(error){
           // Set the Error
