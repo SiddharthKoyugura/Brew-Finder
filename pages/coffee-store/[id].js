@@ -92,8 +92,10 @@ const CoffeeStore = (initialProps) => {
           handleCreateCoffeeStore(coffeeStoreFromContext);
         }
       }
+    }else{
+      handleCreateCoffeeStore(coffeeStore);
     }
-  }, [id]);
+  }, [id, coffeeStore]);
   const { address, name, imgUrl, neighborhood } = coffeeStore;
 
   function handleUpvoteButton() {
