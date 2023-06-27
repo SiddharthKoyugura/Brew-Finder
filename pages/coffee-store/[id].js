@@ -4,9 +4,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Head from "next/head";
-import styles from '../../styles/coffee-store.module.css';
+import styles from "../../styles/coffee-store.module.css";
 import Image from "next/image";
-import cls from 'classnames';
+import cls from "classnames";
 import { fetchCoffeeStores } from "@/lib/coffee-stores";
 import { StoreContext } from "@/contex/store-context";
 import { isEmpty } from "@/utils";
@@ -44,34 +44,59 @@ const CoffeeStore = (initialProps) => {
   const router = useRouter();
   // console.log(router);
 
-
-  if(router.isFallback){
-    return <div>Loading....</div>
+  if (router.isFallback) {
+    return <div>Loading....</div>;
   }
-
 
   const id = router.query.id;
 
-  const [ coffeeStore, setCoffeeStore ] = useState(initialProps.coffeeStore);
+  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
   const {
-    state:{
-      coffeeStores
-    }
+    state: { coffeeStores },
   } = useContext(StoreContext);
 
-  useEffect(()=>{
-    if(isEmpty(coffeeStore)){
-      if(coffeeStores.length > 0){
-        const findCoffeeStoresById = coffeeStores.find((coffeeStore) => {
+  const handleCreateCoffeeStore = async (coffeeStore) => {
+    try {
+      const { id, name, address, neighborhood, voting, imgUrl } = coffeeStore;
+
+      const response = await fetch("/api/createCoffeeStore", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: id,
+          name,
+          address: address || "",
+          neighborhood: neighborhood || "",
+          voting: 0,
+          imgUrl,
+        }),
+      });
+
+      const dbCoffeeStores = response.json();
+      console.log({dbCoffeeStores});
+    } catch (err) {
+      console.error("Error creating coffee store", err);
+    }
+  };
+
+  useEffect(() => {
+    if (isEmpty(coffeeStore)) {
+      if (coffeeStores.length > 0) {
+        const coffeeStoreFromContext = coffeeStores.find((coffeeStore) => {
           return coffeeStore.id.toString() === id;
         });
-        setCoffeeStore(findCoffeeStoresById);
+        if(coffeeStoreFromContext){
+          setCoffeeStore(coffeeStoreFromContext);
+          handleCreateCoffeeStore(coffeeStoreFromContext);
+        }
       }
     }
   }, [id]);
   const { address, name, imgUrl, neighborhood } = coffeeStore;
 
-  function handleUpvoteButton(){
+  function handleUpvoteButton() {
     console.log("clicked");
   }
   return (
@@ -88,28 +113,47 @@ const CoffeeStore = (initialProps) => {
             <h1 className={styles.name}>{name}</h1>
           </div>
           <Image
-            src={imgUrl || "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"}
+            src={
+              imgUrl ||
+              "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"
+            }
             width={600}
             height={360}
-            className={styles.storeImg} 
+            className={styles.storeImg}
             alt={name}
           />
         </div>
         <div className={cls("glass", styles.col2)}>
-          {address && <div className={styles.iconWrapper}>
-            <Image src='/static/icons/places.svg' height={24} width={24} alt=""/>
-            <p className={styles.text}>{address}</p>
-          </div>}
-          {neighborhood && <div className={styles.iconWrapper}>
-            <Image src='/static/icons/nearMe.svg' height={24} width={24} alt=""/>
-            <p className={styles.text}>{neighborhood}</p>
-          </div>}
+          {address && (
+            <div className={styles.iconWrapper}>
+              <Image
+                src="/static/icons/places.svg"
+                height={24}
+                width={24}
+                alt=""
+              />
+              <p className={styles.text}>{address}</p>
+            </div>
+          )}
+          {neighborhood && (
+            <div className={styles.iconWrapper}>
+              <Image
+                src="/static/icons/nearMe.svg"
+                height={24}
+                width={24}
+                alt=""
+              />
+              <p className={styles.text}>{neighborhood}</p>
+            </div>
+          )}
           <div className={styles.iconWrapper}>
-            <Image src='/static/icons/star.svg' height={24} width={24} alt=""/>
+            <Image src="/static/icons/star.svg" height={24} width={24} alt="" />
             <p className={styles.text}>1</p>
           </div>
 
-          <button className={styles.upvoteButton} onClick={handleUpvoteButton}>Up Vote</button>
+          <button className={styles.upvoteButton} onClick={handleUpvoteButton}>
+            Up Vote
+          </button>
         </div>
       </div>
     </div>
