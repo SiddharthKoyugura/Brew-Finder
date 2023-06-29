@@ -6,7 +6,7 @@ const getCoffeeStoreById = async (req, res) => {
     if (id) {
       const record = await findRecordFilter(id);
       if (record.length !== 0) {
-        res.json({ record });
+        res.json(record);
       } else {
         res.json({ message: "id could not be found" });
       }

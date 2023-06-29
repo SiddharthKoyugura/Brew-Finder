@@ -9,7 +9,8 @@ import Image from "next/image";
 import cls from "classnames";
 import { fetchCoffeeStores } from "@/lib/coffee-stores";
 import { StoreContext } from "@/contex/store-context";
-import { isEmpty } from "@/utils";
+import { isEmpty, fetcher } from "@/utils";
+import useSWR from 'swr';
 
 export async function getStaticProps(staticProps) {
   const params = staticProps.params;
@@ -58,7 +59,7 @@ const CoffeeStore = (initialProps) => {
   const handleCreateCoffeeStore = async (coffeeStore) => {
     try {
       const { id, name, address, neighborhood, voting, imgUrl } = coffeeStore;
-
+      
       const response = await fetch("/api/createCoffeeStore", {
         method: "POST",
         headers: {
@@ -74,8 +75,8 @@ const CoffeeStore = (initialProps) => {
         }),
       });
 
-      const dbCoffeeStores = response.json();
-      console.log({dbCoffeeStores});
+      // const dbCoffeeStores = response.json();
+      // console.log({dbCoffeeStores});
     } catch (err) {
       console.error("Error creating coffee store", err);
     }
@@ -92,19 +93,38 @@ const CoffeeStore = (initialProps) => {
           handleCreateCoffeeStore(coffeeStoreFromContext);
         }
       }
-    }else{
+    }/*else{
       handleCreateCoffeeStore(coffeeStore);
-    }
+    }*/
+    
   }, [id, coffeeStore]);
   const { address, name, imgUrl, neighborhood } = coffeeStore;
 
   const [ votingCount, setVotingCount ] = useState(0);
+  
+  
+
+  const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
+
+  useEffect(()=>{
+    if(data && data.length > 0){
+      console.log("data from swr", data[0]);
+      setCoffeeStore(data[0]);
+      setVotingCount(data[0].voting);
+    }
+  }, [data]);
 
   function handleUpvoteButton() {
     console.log("clicked");
     let count = votingCount+1;
     setVotingCount(count);
   }
+
+  if(error){
+    console.log("SWR error", error);
+    return <div>Something went wrong while retrieving data</div>
+  }
+
   return (
     <div className={styles.layout}>
       <Head>
