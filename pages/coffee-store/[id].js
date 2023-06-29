@@ -10,7 +10,7 @@ import cls from "classnames";
 import { fetchCoffeeStores } from "@/lib/coffee-stores";
 import { StoreContext } from "@/contex/store-context";
 import { isEmpty, fetcher } from "@/utils";
-import useSWR from 'swr';
+import useSWR from "swr";
 
 export async function getStaticProps(staticProps) {
   const params = staticProps.params;
@@ -58,8 +58,8 @@ const CoffeeStore = (initialProps) => {
 
   const handleCreateCoffeeStore = async (coffeeStore) => {
     try {
-      const { id, name, address, neighborhood, voting, imgUrl } = coffeeStore;
-      
+      const { id, name, address, neighbourhood, voting, imgUrl } = coffeeStore;
+
       const response = await fetch("/api/createCoffeeStore", {
         method: "POST",
         headers: {
@@ -69,7 +69,7 @@ const CoffeeStore = (initialProps) => {
           id: id,
           name,
           address: address || "",
-          neighborhood: neighborhood || "",
+          neighbourhood: neighbourhood || "",
           voting: 0,
           imgUrl,
         }),
@@ -88,41 +88,52 @@ const CoffeeStore = (initialProps) => {
         const coffeeStoreFromContext = coffeeStores.find((coffeeStore) => {
           return coffeeStore.id.toString() === id;
         });
-        if(coffeeStoreFromContext){
+        if (coffeeStoreFromContext) {
           setCoffeeStore(coffeeStoreFromContext);
           handleCreateCoffeeStore(coffeeStoreFromContext);
         }
       }
-    }/*else{
+    } else{
       handleCreateCoffeeStore(coffeeStore);
-    }*/
-    
-  }, [id, coffeeStore]);
-  const { address, name, imgUrl, neighborhood } = coffeeStore;
+    }
+  }, [id, initialProps.coffeeStore]);
+  const { address, name, imgUrl, neighbourhood } = coffeeStore;
 
-  const [ votingCount, setVotingCount ] = useState(0);
-  
-  
+  const [votingCount, setVotingCount] = useState(0);
 
-  const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
+  const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher, { refreshInterval: 1 });
 
-  useEffect(()=>{
-    if(data && data.length > 0){
-      console.log("data from swr", data[0]);
+  useEffect(() => {
+    if (data && data.length > 0) {
       setCoffeeStore(data[0]);
       setVotingCount(data[0].voting);
     }
   }, [data]);
 
-  function handleUpvoteButton() {
-    console.log("clicked");
-    let count = votingCount+1;
-    setVotingCount(count);
-  }
+  const handleUpvoteButton = async () => {
+    try {
+      const response = await fetch("/api/favouriteCoffeeStoreById", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: id,
+        }),
+      });
 
-  if(error){
+      const dbCoffeeStores = response.json();
+      if(dbCoffeeStores && dbCoffeeStores.length>0){
+        setVotingCount(votingCount+1);
+      }
+    } catch (err) {
+      console.error("Error updating the upvote", err);
+    }
+  };
+
+  if (error) {
     console.log("SWR error", error);
-    return <div>Something went wrong while retrieving data</div>
+    return <div>Something went wrong while retrieving data</div>;
   }
 
   return (
@@ -161,7 +172,7 @@ const CoffeeStore = (initialProps) => {
               <p className={styles.text}>{address}</p>
             </div>
           )}
-          {neighborhood && (
+          {neighbourhood && (
             <div className={styles.iconWrapper}>
               <Image
                 src="/static/icons/nearMe.svg"
@@ -169,12 +180,12 @@ const CoffeeStore = (initialProps) => {
                 width={24}
                 alt=""
               />
-              <p className={styles.text}>{neighborhood}</p>
+              <p className={styles.text}>{neighbourhood}</p>
             </div>
           )}
           <div className={styles.iconWrapper}>
             <Image src="/static/icons/star.svg" height={24} width={24} alt="" />
-            <p className={styles.text}>{ votingCount }</p>
+            <p className={styles.text}>{votingCount}</p>
           </div>
 
           <button className={styles.upvoteButton} onClick={handleUpvoteButton}>
